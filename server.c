@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include "echo.h"
+#include "signal.h"
 
 void str_echo(int connfd)
 {
@@ -33,6 +34,7 @@ int main(int argc,char *argv[])
 	char *backq;
 	socklen_t clilen;
 	struct sockaddr_in servaddr,cliaddr;
+	struct sigaction sa;
 	pid_t childpid;
 
 	listenfd = socket(AF_INET,SOCK_STREAM,0);
@@ -58,12 +60,22 @@ int main(int argc,char *argv[])
 		return 1;
 	}
 
+	/* for SIGCHLD */
+	sa.sa_handler = sigchild_handler;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+
 	for(;;){
 		clilen = sizeof(cliaddr);
 		connfd = accept(listenfd,(struct sockaddr *) &cliaddr,&clilen);
 		if (connfd == -1){
-			perror("accept");
-			return 1;
+			if (errno == EINTR){
+				/* signal interrupted */
+				continue;
+			}else{
+				perror("accept");
+				return 1;
+			}
 		}
 		if ((childpid = fork()) == 0){
 			close(listenfd);

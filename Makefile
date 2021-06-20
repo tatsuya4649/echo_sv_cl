@@ -4,7 +4,7 @@ SERVER:=server
 CLIENT:=client
 
 COMMON:=writen.o
-ONLY_SERVER:=
+ONLY_SERVER:=signal.o
 ONLY_CLIENT:=
 BIN:=bin
 OBJECT:=obj
