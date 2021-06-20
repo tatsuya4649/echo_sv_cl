@@ -17,4 +17,4 @@ all: ${addsuffix .o,${SERVER}} ${addsuffix .o,${CLIENT}} ${COMMON} ${ONLY_SERVER
 %.o: %.c
 	${CC} -c $< -o $@
 clean:
-	rm -f *.o bin/*
+	rm -f *.o bin/* obj/*
