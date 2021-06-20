@@ -1,0 +1,8 @@
+
+echo server/client (with TCP)
+
+how to use
+----
+1. make
+2. SERVER => bin/server
+2. CLIENT => bin/client
