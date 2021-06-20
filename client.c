@@ -1,33 +1,12 @@
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
-#define SERV_PORT	9000
-#define MAXLINE		1000
-
-ssize_t writen(int fd,const void *vptr,size_t n)
-{
-	size_t nleft;
-	ssize_t nwritten;
-	const char *ptr;
-
-	ptr = vptr;
-	nleft = n;
-	while(nleft>0){
-		if ((nwritten = write(fd,ptr,nleft))<=0){
-			if (nwritten<0&&errno==EINTR)
-				nwritten = 0;
-			else
-				return -1;
-		}
-
-		nleft -= nwritten;
-		ptr += nwritten;
-	}
-	return n;
-}
+#include <arpa/inet.h>
+#include "echo.h"
+#include <errno.h>
 
 static int read_cnt;
 static char *read_ptr;
@@ -76,9 +55,9 @@ void str_cli(FILE *fp,int connfd)
 {
 	char sendline[MAXLINE],recvline[MAXLINE];
 
-	while(fget(sendline,MAXLINE,fp) != NULL){
-		writen(sockfd,sendline,strlen(sendline));
-		if (Readline(sockfd,recvline,MAXLINE) == 0){
+	while(fgets(sendline,MAXLINE,fp) != NULL){
+		writen(connfd,sendline,strlen(sendline));
+		if (readline(connfd,recvline,MAXLINE) == 0){
 			perror("Readline");
 			return;
 		}
