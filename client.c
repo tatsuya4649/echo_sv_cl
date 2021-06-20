@@ -3,26 +3,59 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "echo.h"
 #include "readline.h"
 #include <errno.h>
 
+int max(int a,int b)
+{
+	return a >= b ? a : b;
+}
+
 void str_cli(FILE *fp,int connfd)
 {
+	int maxfdpl;
+	fd_set rset;
 	char sendline[MAXLINE],recvline[MAXLINE];
 
-	while(fgets(sendline,MAXLINE,fp) != NULL){
-		writen(connfd,sendline,strlen(sendline));
-		if (readline(connfd,recvline,MAXLINE) == 0){
-			perror("Readline");
+	FD_ZERO(&rset);
+
+	for (;;){
+		FD_SET(fileno(fp),&rset);
+		FD_SET(connfd,&rset);
+		maxfdpl = max(fileno(fp),connfd)+1;
+		if (select(maxfdpl,&rset,NULL,NULL,NULL) == -1){
+			perror("select");
 			return;
 		}
-		if (fputs(recvline,stdout) == -1){
-			perror("fputs");
+
+		if (FD_ISSET(connfd,&rset)){
+			if (readline(connfd,recvline,MAXLINE) == 0){
+				fprintf(stderr,"str_cli: server terminated prematurely\n");
+				return;
+			}
+			fputs(recvline,stdout);
+		}
+		if (FD_ISSET(fileno(fp),&rset)){
+			if (fgets(sendline,MAXLINE,fp) == NULL)
+				return;
+			writen(connfd,sendline,strlen(sendline));
 		}
 	}
+
+//	while(fgets(sendline,MAXLINE,fp) != NULL){
+//		writen(connfd,sendline,strlen(sendline));
+//		if (readline(connfd,recvline,MAXLINE) == 0){
+//			perror("Readline");
+//			return;
+//		}
+//		if (fputs(recvline,stdout) == -1){
+//			perror("fputs");
+//		}
+//	}
 }
 
 int main(int argc,char *argv[])
