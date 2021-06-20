@@ -8,6 +8,7 @@
 #include <errno.h>
 #include "echo.h"
 #include "signal.h"
+#include "readline.h"
 
 void str_echo(int connfd)
 {
@@ -26,6 +27,26 @@ again:
 		goto again;
 	else if (n<0)
 		perror("read");
+}
+
+void str_echo2(int sockfd)
+{
+	long arg1,arg2;
+	ssize_t n;
+	char line[MAXLINE];
+
+	for (;;)
+	{
+		if ((n = readline(sockfd,line,MAXLINE)) == 0)
+			return;
+
+		if (sscanf(line,"%ld%ld",&arg1,&arg2) == 2)
+			snprintf(line,sizeof(line),"%ld\n",arg1+arg2);
+		else
+			snprintf(line,sizeof(line),"input error\n");
+		n = strlen(line);
+		writen(sockfd,line,n);
+	}
 }
 
 int main(int argc,char *argv[])

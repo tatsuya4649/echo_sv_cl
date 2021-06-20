@@ -3,7 +3,7 @@ CC:=gcc
 SERVER:=server
 CLIENT:=client
 
-COMMON:=writen.o
+COMMON:=writen.o readline.o
 ONLY_SERVER:=signal.o
 ONLY_CLIENT:=
 BIN:=bin
