@@ -4,5 +4,11 @@ echo server/client (with TCP)
 how to use
 ----
 1. make
-2. SERVER => bin/server
+2. SERVER => bin/server or bin/server2
 2. CLIENT => bin/client
+
+type of server
+----
+1. server => 1 listen and 1 child service process per client
+2. server2 => 1 listen and service socket per client with 'select'
+
