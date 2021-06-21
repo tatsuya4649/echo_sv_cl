@@ -1,6 +1,6 @@
 CC:=gcc
 
-SERVER:=server server2
+SERVER:=server server2 server3
 CLIENT:=client
 
 COMMON:=writen.o readline.o

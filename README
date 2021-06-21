@@ -11,4 +11,5 @@ type of server
 ----
 1. server => 1 listen and 1 child service process per client
 2. server2 => 1 listen and service socket per client with 'select'
+3. server3 => 1 listen and service socket per client with 'poll'
 
